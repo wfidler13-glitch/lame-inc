@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAME INC - Delightfully Tacky</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-pink: #ff10f0;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffff00;
+            --neon-cyan: #00ffff;
+            --dark-bg: #0a0a0a;
+            --grid-color: #333;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'Courier Prime', monospace;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* Grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -2;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(20px, 20px); }
+        }
+
+        /* Glitch effect */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-1 0.5s infinite;
+            color: var(--neon-pink);
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-2 0.5s infinite;
+            color: var(--neon-cyan);
+            z-index: -2;
+        }
+
+        @keyframes glitch-1 {
+            0%, 14%, 15%, 49%, 50%, 99%, 100% { transform: translate(0); }
+            15%, 49% { transform: translate(-2px, -1px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 20%, 21%, 62%, 63%, 99%, 100% { transform: translate(0); }
+            21%, 62% { transform: translate(2px, 1px); }
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-green), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px var(--neon-pink);
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes neonPulse {
+            0% { 
+                text-shadow: 
+                    0 0 5px var(--neon-pink),
+                    0 0 10px var(--neon-pink),
+                    0 0 15px var(--neon-pink);
+            }
+            100% { 
+                text-shadow: 
+                    0 0 10px var(--neon-pink),
+                    0 0 20px var(--neon-pink),
+                    0 0 30px var(--neon-pink),
+                    0 0 40px var(--neon-pink);
+            }
+        }
+
+        .manifesto {
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            text-align: center;
+            padding: 2rem;
+            border: 2px solid var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.05);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border: 1px solid var(--neon-green);
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-green), var(--neon-yellow), var(--neon-cyan));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 16, 240, 0.3);
+        }
+
+        .project-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--neon-yellow);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--neon-yellow);
+        }
+
+        .project-desc {
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: var(--neon-green);
+            color: black;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        .coming-soon {
+            background: var(--neon-pink);
+        }
+
+        .live {
+            background: var(--neon-yellow);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            border-top: 2px solid var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .footer h3 {
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-cyan);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .social-links a {
+            color: var(--neon-green);
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--neon-green);
+        }
+
+        .social-links a:hover {
+            background: var(--neon-green);
+            color: black;
+            text-shadow: none;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .warning {
+            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid var(--neon-yellow);
+            padding: 1rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: warningBlink 2s infinite;
+        }
+
+        @keyframes warningBlink {
+            0%, 90% { border-color: var(--neon-yellow); }
+            95% { border-color: var(--neon-pink); }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Easter egg - matrix rain */
+        .matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix"></div>
+    
+    <header>
+        <h1 class="logo glitch" data-text="LAME INC">LAME INC</h1>
+        <p class="tagline">Delightfully Tacky Yet Refined</p>
+    </header>
+
+    <div class="manifesto">
+        <p>We are LAME INC. We make things that shouldn't exist but absolutely must. Art meets absurdity meets commerce meets chaos. We wield creative power competitive with corporations, celebrities, and the algorithm overlords. Welcome to the beautiful mess.</p>
+    </div>
+
+    <div class="warning">
+        ⚠ WARNING: CONTENTS MAY CAUSE EXISTENTIAL QUESTIONING ⚠
+    </div>
+
+    <div class="projects-grid">
+        <div class="project-card">
+            <h3 class="project-title">Pandemic Babies</h3>
+            <p class="project-desc">A generational study disguised as a dating app. What happens when an entire cohort of humans enters the world during global chaos? We're finding out.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Real Rangefinder</h3>
+            <p class="project-desc">The world's most honest camera. Takes photos but only of things within a 6-foot radius of genuine human connection. Most shots come out blank.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Rocher Roulette</h3>
+            <p class="project-desc">Luxury chocolate Russian roulette. 11 golden Ferrero Rochers, 1 filled with wasabi. Perfect for board meetings and first dates.</p>
+            <span class="project-status live">Live</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Billy The Bum</h3>
+            <p class="project-desc">AI-powered homeless simulator. Experience income inequality from the comfort of your Tesla. All proceeds go to actual Billy (location pending).</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Times Up</h3>
+            <p class="project-desc">A watch that only shows the time you have left. Based on actuarial tables, lifestyle choices, and your last Instagram post. Motivational nihilism.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Pretty Tools</h3>
+            <p class="project-desc">Hammers encrusted with Swarovski crystals. Screwdrivers dipped in 24k gold. Because your garage deserves to be fabulous too.</p>
+            <span class="project-status live">Live</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Manson's Rib</h3>
+            <p class="project-desc">The world's most controversial BBQ sauce. Recipe "inspired by" a certain cult leader's favorite marinade. Legal disclaimer: Contains no actual human.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Frankenstein Toy</h3>
+            <p class="project-desc">Build-your-own monster kit using parts from recalled toys. Each creature is unique, terrifying, and probably violates several safety regulations.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Golden Fortune Cookie</h3>
+            <p class="project-desc">$500 cookie containing either life-changing wisdom or your credit card information printed on rice paper. Fortune favors the bold (and wealthy).</p>
+            <span class="project-status live">Live</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">President Evil</h3>
+            <p class="project-desc">Political horror game where every candidate is literally a zombie. Vote for the lesser evil or get eaten by democracy. Surprisingly realistic.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Humanhood of the Traveling Hoodie</h3>
+            <p class="project-desc">One hoodie. 1000 people. 365 days. Track its journey as it experiences the full spectrum of human existence. Sweat stains tell stories.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Nice Crispy Treat</h3>
+            <p class="project-desc">Rice Krispies treats but every kernel is individually wrapped in sustainable packaging. Takes 3 hours to unwrap. Meditation through frustration.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Michelin Lunch</h3>
+            <p class="project-desc">5-star dining experience served exclusively in tire shops. White tablecloth, foam nitrogen, and the gentle scent of rubber. Reservation only.</p>
+            <span class="project-status live">Live</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Notta Pyramid</h3>
+            <p class="project-desc">MLM scheme that's completely transparent about being a pyramid scheme. Honest exploitation. Finally, a business model with integrity.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Divorce Drone</h3>
+            <p class="project-desc">Autonomous quadcopter that delivers divorce papers while playing "I Will Survive" at maximum volume. Includes tissue dispenser attachment for tears.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Anxiety Aquarium</h3>
+            <p class="project-desc">Fish tank where all the fish have generalized anxiety disorder. Watch them overthink everything while you project your own neuroses onto marine life.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Ghost Kitchen Kitchen</h3>
+            <p class="project-desc">Restaurant that only serves food cooked by the spirits of dead chefs. Reservations require a Ouija board. Yelp reviews are channeled through mediums.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Micro-Macro Economics</h3>
+            <p class="project-desc">Stock market for bacteria. Trade E. coli futures and invest in probiotic startups. The only exchange where insider trading involves actual insiders (your gut).</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Procrastination Nation</h3>
+            <p class="project-desc">Social media platform where you can only post things you should be doing instead. Scroll feed = instant guilt. Engagement through avoidance.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Honest Horoscopes</h3>
+            <p class="project-desc">Astrology that tells you the brutal truth. "Mercury is in retrograde, but really you're just bad at texting back." Cosmic accountability.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Breakup Box</h3>
+            <p class="project-desc">Monthly subscription of your ex's belongings that they "forgot" to pick up. Includes passive-aggressive note explaining why they kept each item.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Influencer Rehab</h3>
+            <p class="project-desc">12-step program for recovering content creators. Learn to experience moments without documenting them. Step 1: Admit you're powerless over the algorithm.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Cancel Culture Culture</h3>
+            <p class="project-desc">Petri dish experiments where bacteria cancel each other for problematic fermentation patterns. Watch microorganisms navigate modern accountability.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Existential Crisis Hotline</h3>
+            <p class="project-desc">24/7 support line that makes your existential dread worse. Professional philosophers ask increasingly uncomfortable questions about your life choices.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Millennial Monopoly</h3>
+            <p class="project-desc">Board game where you can never afford property, student loan debt increases every turn, and winning is defined as "emotional stability." Avocado toast not included.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Therapy Therapy</h3>
+            <p class="project-desc">Therapy for your therapist's therapist. Because someone needs to deal with all that secondhand trauma. Meta-mental health for the post-truth era.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Analog Instagram</h3>
+            <p class="project-desc">Physical photo albums that you have to manually carry to friends' houses to show them. Includes real-time comment cards and hand-drawn filter overlays.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Weaponized Wellness</h3>
+            <p class="project-desc">Self-care products designed to passive-aggressively improve your enemies' mental health. Send them meditation apps with your number blocked.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Democracy Dice</h3>
+            <p class="project-desc">Replace voting with literally rolling dice. Statistically equivalent outcomes, but at least we're honest about the randomness. Comes with conspiracy theory starter pack.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Empathy Engine</h3>
+            <p class="project-desc">AI that forces you to experience every perspective on controversial topics simultaneously. Guaranteed to make you understand everyone and agree with no one.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Productivity Prison</h3>
+            <p class="project-desc">Co-working space designed like a literal prison. Orange jumpsuits provided. Finally, an honest representation of hustle culture's relationship to human freedom.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Sustainable Rage</h3>
+            <p class="project-desc">Eco-friendly anger management using only renewable fury sources. Solar-powered screaming booths and compostable punching bags made from recycled disappointments.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Truth Social Media</h3>
+            <p class="project-desc">Platform where everything you post is fact-checked by your mom. Brutal honesty meets parental oversight. Your trauma is showing and she's concerned.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+
+        <div class="project-card">
+            <h3 class="project-title">Hipster Hospice</h3>
+            <p class="project-desc">End-of-life care for trends that died before they were cool. Where forgotten indie bands and artisanal movements go to pass away with dignity.</p>
+            <span class="project-status coming-soon">Coming Soon</span>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <h3>Contact The Collective</h3>
+        <p>For collaborations, complaints, or existential crises</p>
+        
+        <div class="social-links">
+            <a href="#">Instagram</a>
+            <a href="#">Twitter</a>
+            <a href="#">OnlyFans</a>
+            <a href="#">LinkedIn</a>
+        </div>
+        
+        <p style="margin-top: 2rem; color: var(--neon-pink); text-transform: uppercase;">
+            LAME INC © 2024 • Proudly Making Things Worse Since Forever
+        </p>
+    </footer>
+
+    <script>
+        // Glitch effect on hover
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const title = card.querySelector('.project-title');
+                title.classList.add('glitch');
+                title.setAttribute('data-text', title.textContent);
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                const title = card.querySelector('.project-title');
+                title.classList.remove('glitch');
+            });
+        });
+
+        // Matrix rain effect
+        function createMatrixRain() {
+            const matrix = document.querySelector('.matrix');
+            const chars = '01';
+            
+            for (let i = 0; i < 50; i++) {
+                const drop = document.createElement('div');
+                drop.style.position = 'absolute';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.color = '#00ff00';
+                drop.style.fontSize = Math.random() * 20 + 10 + 'px';
+                drop.style.fontFamily = 'monospace';
+                drop.style.animationDuration = Math.random() * 3 + 2 + 's';
+                drop.style.animationName = 'fall';
+                drop.style.animationIterationCount = 'infinite';
+                drop.textContent = chars[Math.floor(Math.random() * chars.length)];
+                matrix.appendChild(drop);
+            }
+        }
+
+        // Add CSS for falling animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                0% { transform: translateY(-100vh); opacity: 1; }
+                100% { transform: translateY(100vh); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize matrix rain
+        createMatrixRain();
+
+        // Random color changes
+        setInterval(() => {
+            const cards = document.querySelectorAll('.project-card');
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            const colors = ['var(--neon-pink)', 'var(--neon-green)', 'var(--neon-yellow)', 'var(--neon-cyan)'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            randomCard.style.borderColor = randomColor;
+            setTimeout(() => {
+                randomCard.style.borderColor = 'var(--neon-green)';
+            }, 1000);
+        }, 3000);
+
+        // Konami code easter egg
+        const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.keyCode === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    document.body.style.transform = 'rotate(180deg)';
+                    setTimeout(() => {
+                        document.body.style.transform = 'rotate(0deg)';
+                    }, 3000);
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+    </script>
+</body>
+</html>
