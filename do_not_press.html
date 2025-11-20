@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT PRESS</title>
+    <!-- Load Tailwind CSS for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the pressable image */
+        .pressable-image {
+            cursor: pointer;
+            transition: transform 0.1s ease-out, filter 0.1s ease-out;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* State when the button is actively pressed down */
+        .pressable-image:active {
+            transform: scale(0.98) translateY(2px); /* Subtle squash and indent */
+            filter: brightness(0.9); /* Slightly darken the image */
+        }
+    </style>
+</head>
+<body class="bg-white text-black">
+
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+        
+        <!-- 1. DO NOT -->
+        <img src="./DONOT/donot.png" 
+             alt="Text: DO NOT" 
+             class="w-5/6 max-w-md h-auto mb-4 select-none" />
+
+        <!-- 2. PRESS THIS -->
+        <img src="./DONOT/pressthis.png" 
+             alt="Text: PRESS THIS" 
+             class="w-5/6 max-w-md h-auto mb-10 select-none" />
+
+        <!-- 3. BIG RED BUTTON (The interactive element) -->
+        <!-- We use an anchor tag with click handler to prevent default drag/context menu behavior -->
+        <a id="big-red-button" class="pressable-image">
+            <img src="./DONOT/bigredbutton.png" 
+                 alt="A big red button" 
+                 class="w-64 h-64 select-none"
+                 onerror="this.src='https://placehold.co/256x256/ef4444/FFFFFF?text=BUTTON'; console.error('Image DONOT/bigredbutton.png not found.');" />
+        </a>
+
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const NEXT_DESTINATION_URL = "https://lameincorporated.com/do-not-watch"; // Update this when you create the video page!
+        const BUTTON = document.getElementById('big-red-button');
+        let clickCount = 0;
+        const MAX_CLICKS = 3; // Number of presses before redirect
+
+        // --- Event Listener ---
+        BUTTON.addEventListener('click', handleButtonClick);
+
+        /**
+         * Handles the click event on the button, counting clicks and redirecting.
+         */
+        function handleButtonClick(event) {
+            // Prevent default behavior (like dragging the image)
+            event.preventDefault(); 
+            
+            // Only count the click if we haven't redirected yet
+            if (clickCount <= MAX_CLICKS) {
+                clickCount++;
+                console.log(`Button pressed. Count: ${clickCount}`);
+            }
+
+            if (clickCount > MAX_CLICKS) {
+                // Remove the click listener to prevent multiple redirects
+                BUTTON.removeEventListener('click', handleButtonClick);
+                
+                // Immediately apply the final pressed look
+                BUTTON.style.transform = "scale(0.98) translateY(2px)";
+                BUTTON.style.filter = "brightness(0.9)";
+
+                // Navigate away after a brief visual confirmation
+                setTimeout(() => {
+                    window.location.href = NEXT_DESTINATION_URL;
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
