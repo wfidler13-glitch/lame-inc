@@ -8,10 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap');
+
         body {
             font-family: 'Noto Sans SC', sans-serif;
             background-color: #111827; /* Dark charcoal background */
             color: #f3f4f6; /* Light gray text */
+            overflow: hidden; /* Prevent scrolling */
         }
         .puzzle-container {
             position: relative;
@@ -44,14 +47,25 @@
             user-select: none;
             -webkit-user-drag: none;
         }
+        
+        /* Spotify Phase Styles */
+        .spotify-logo {
+            fill: #1DB954; /* Spotify Green */
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .spotify-logo:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 10px rgba(29, 185, 84, 0.5));
+        }
     </style>
 </head>
 <body class="select-none">
 
     <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
         
-        <!-- Main Instructions -->
-        <div class="text-center mb-16">
+        <!-- Main Instructions (Initial Phase) -->
+        <div id="initial-instruction" class="text-center mb-16">
             <h1 class="text-4xl sm:text-6xl font-extrabold tracking-widest uppercase mb-4 text-red-500">
                 DO NOT TRANSLATE
             </h1>
@@ -69,11 +83,11 @@
 
     <script>
         // --- Configuration ---
-        const SUCCESS_URL = "https://lameincorporated.com/donotcompletethisform";
+        // The final destination when a Spotify eye is clicked
+        const SPOTIFY_URL = "https://open.spotify.com/playlist/3LaHRpbqb31CV6AmXd9dtT?si=oos6i8I_THS_8uq5WLXrHw&pi=gyzPDjfQT6iH7";
         const WRONG_IMAGE_FOLDER = "./BUYAOimgs/"; // Base path to your images
         
-        // List of animals in the required circular order, and their corresponding image files.
-        // NOTE: The value in the array is the image filename stem.
+        // List of animals in the required circular order
         const animals = [
             { name: 'rat', file: 'buyaorat.png', isTarget: false },
             { name: 'ox', file: 'buyaoox.png', isTarget: false },
@@ -92,16 +106,14 @@
         // --- Core Functions ---
 
         /**
-         * Closes the window/tab with a fallback, as direct window.close() often fails.
+         * Closes the window/tab with a fallback.
          */
         function closeWindow() {
             try {
-                // Try to close the current window/tab
                 window.open('', '_self').close();
             } catch (e) {
-                // If the browser prevents closing, redirect to a blank page or error state
-                document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center text-4xl text-red-700">ACCESS DENIED.</div>';
-                console.error("Could not close window automatically. Redirecting to black screen.");
+                // Workaround for blocked close()
+                setTimeout(() => { window.location.href = "about:blank"; }, 100);
             }
         }
 
@@ -110,19 +122,83 @@
          * @param {boolean} isTarget - True if the clicked animal is the dragon.
          */
         function handleIconClick(isTarget) {
-            // Disable all clicks immediately to prevent double-clicking
+            // Disable all clicks immediately
             document.querySelectorAll('.animal-icon').forEach(icon => {
                 icon.style.pointerEvents = 'none';
             });
 
             if (isTarget) {
-                // Success: Redirect to the next step immediately
-                window.location.href = SUCCESS_URL;
+                // Success: Transition to the Spotify Phase
+                renderSpotifyFace();
             } else {
-                // Failure: Close the window
-                document.getElementById('puzzle-container').innerHTML = '<p class="text-red-500 text-3xl mt-20">THANK YOU.</p>';
+                // Failure: Show message and close
+                document.getElementById('puzzle-container').innerHTML = '';
+                document.getElementById('initial-instruction').innerHTML = '';
+                
+                const msg = document.createElement('div');
+                msg.className = "text-red-500 text-6xl font-black mt-20 animate-pulse";
+                msg.innerText = "THANK YOU.";
+                document.getElementById('app').appendChild(msg);
+
                 setTimeout(closeWindow, 1000);
             }
+        }
+
+        /**
+         * Renders the "DO NOT OPEN SPOTIFY" face.
+         */
+        function renderSpotifyFace() {
+            const app = document.getElementById('app');
+            // Clear existing content
+            app.innerHTML = '';
+
+            // Create Container
+            const container = document.createElement('div');
+            container.className = "flex flex-col items-center justify-center animate-fadeIn";
+
+            // Header Text
+            const header = document.createElement('h1');
+            header.className = "text-5xl sm:text-7xl font-extrabold tracking-wider uppercase mb-16 text-[#1DB954]"; // Spotify Green
+            header.style.fontFamily = "'Barlow Condensed', sans-serif";
+            header.innerText = "DO NOT OPEN SPOTIFY";
+            container.appendChild(header);
+
+            // Face Container
+            const faceDiv = document.createElement('div');
+            faceDiv.className = "flex flex-col items-center";
+
+            // Eyes Container (Two Spotify Logos)
+            const eyesDiv = document.createElement('div');
+            eyesDiv.className = "flex gap-16 mb-8";
+
+            // Spotify SVG String
+            const spotifySvg = `
+                <svg viewBox="0 0 24 24" width="120" height="120" class="spotify-logo">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.26.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-.96 15.18 1.381.54.3.72 1.02.42 1.56-.3.54-1.02.72-1.56.42z"/>
+                </svg>
+            `;
+
+            // Left Eye
+            const leftEye = document.createElement('div');
+            leftEye.innerHTML = spotifySvg;
+            leftEye.addEventListener('click', () => window.location.href = SPOTIFY_URL);
+            eyesDiv.appendChild(leftEye);
+
+            // Right Eye
+            const rightEye = document.createElement('div');
+            rightEye.innerHTML = spotifySvg;
+            rightEye.addEventListener('click', () => window.location.href = SPOTIFY_URL);
+            eyesDiv.appendChild(rightEye);
+
+            faceDiv.appendChild(eyesDiv);
+
+            // Smile (Simple CSS Arc)
+            const smile = document.createElement('div');
+            smile.className = "w-48 h-24 border-b-[12px] border-[#1DB954] rounded-full";
+            faceDiv.appendChild(smile);
+
+            container.appendChild(faceDiv);
+            app.appendChild(container);
         }
 
         /**
@@ -130,45 +206,41 @@
          */
         function renderPuzzle() {
             const container = document.getElementById('puzzle-container');
+            // Check if container exists (it might be removed if game ended)
+            if (!container) return;
+
             const numAnimals = animals.length;
             const angleStep = 360 / numAnimals;
-            const radius = container.clientWidth / 2; // Use half the container width as radius
+            const radius = container.clientWidth / 2; 
             
-            // Adjust icon size for mobile view
-            const iconSize = window.innerWidth < 640 ? 40 : 60; // 40px on small screens, 60px otherwise
+            const iconSize = window.innerWidth < 640 ? 40 : 60; 
 
             animals.forEach((animal, index) => {
                 const angle = index * angleStep;
                 const radians = angle * (Math.PI / 180);
                 
-                // Calculate position on the circle (start from top and move clockwise)
                 const x = radius * Math.sin(radians);
                 const y = radius * -Math.cos(radians);
                 
-                // Create the icon container
                 const iconDiv = document.createElement('div');
                 iconDiv.className = 'animal-icon';
                 iconDiv.style.width = `${iconSize}px`;
                 iconDiv.style.height = `${iconSize}px`;
                 
-                // Center the icon container on the calculated point
                 iconDiv.style.left = `calc(50% + ${x}px - ${iconSize/2}px)`;
                 iconDiv.style.top = `calc(50% + ${y}px - ${iconSize/2}px)`;
 
-                // Add the image
                 iconDiv.innerHTML = `<img src="${WRONG_IMAGE_FOLDER}${animal.file}" alt="${animal.name} icon" 
                                         onerror="this.src='https://placehold.co/${iconSize}x${iconSize}/4a4a4a/f3f4f6?text=${animal.name.toUpperCase()}';">`;
                 
-                // Attach the click handler
                 iconDiv.addEventListener('click', () => handleIconClick(animal.isTarget));
                 
                 container.appendChild(iconDiv);
             });
         }
 
-        // Initialize the puzzle when the window loads
+        // Initialize
         window.addEventListener('load', renderPuzzle);
-        // Re-render on resize to maintain circular layout
         window.addEventListener('resize', renderPuzzle);
         
     </script>
