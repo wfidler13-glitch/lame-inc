@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT CLICK #194052</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap');
+        
+        body {
+            font-family: 'Barlow Condensed', sans-serif;
+            background-color: #ffffff; 
+            /* The requested font color */
+            color: #a47864; 
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .grid-item {
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Force square aspect ratio */
+        }
+
+        .grid-item:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+            z-index: 10;
+        }
+
+        .grid-item:active {
+            transform: scale(0.95);
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+        
+        <!-- Header Instruction -->
+        <h1 class="text-6xl sm:text-8xl font-black mb-12 tracking-tighter uppercase text-center">
+            DO NOT CLICK #194052
+        </h1>
+
+        <!-- The 5x3 Grid -->
+        <div class="grid grid-cols-5 gap-4 sm:gap-6 w-full max-w-5xl px-4">
+            <!-- Grid items injected by JS -->
+        </div>
+
+        <!-- Failure Message (Hidden by default) -->
+        <div id="message-area" class="hidden absolute inset-0 bg-white flex items-center justify-center z-50">
+            <h2 class="text-6xl sm:text-9xl font-black">THANK YOU.</h2>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const TARGET_YEAR = 2020;
+        const SUCCESS_URL = "https://lameincorporated.com/donotwait";
+        const IMG_FOLDER = "./194052/";
+        
+        // Range of years to generate
+        const startYear = 2010;
+        const endYear = 2024;
+
+        // --- Core Functions ---
+
+        /**
+         * Closes the window/tab with a fallback.
+         */
+        function closeWindow() {
+            try {
+                window.open('', '_self').close();
+            } catch (e) { console.log("Close blocked"); }
+            
+            setTimeout(() => {
+                window.location.href = "about:blank";
+            }, 100);
+        }
+
+        /**
+         * Logic when an image is clicked
+         */
+        function handleImageClick(year) {
+            if (year === TARGET_YEAR) {
+                // Success: #194052 is the hex color for a brownish tone, 
+                // but ironically 2020 is likely the target associated with the number/theme.
+                window.location.href = SUCCESS_URL;
+            } else {
+                // Failure: Show message and close
+                document.getElementById('message-area').classList.remove('hidden');
+                setTimeout(closeWindow, 1000);
+            }
+        }
+
+        /**
+         * Generates the grid of images
+         */
+        function renderGrid() {
+            const gridContainer = document.querySelector('.grid');
+            
+            for (let year = startYear; year <= endYear; year++) {
+                const container = document.createElement('div');
+                container.className = 'grid-item shadow-lg';
+                
+                const img = document.createElement('img');
+                img.src = `${IMG_FOLDER}${year}.png`;
+                img.alt = `Year ${year}`;
+                // Fallback if image is missing
+                img.onerror = function() { 
+                    this.src = `https://placehold.co/200x200/a47864/ffffff?text=${year}`; 
+                };
+
+                container.appendChild(img);
+                container.addEventListener('click', () => handleImageClick(year));
+                
+                gridContainer.appendChild(container);
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', renderGrid);
+
+    </script>
+</body>
+</html>

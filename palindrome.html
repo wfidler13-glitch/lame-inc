@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT CLICK THE PALINDROME</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap');
+        
+        body {
+            font-family: 'Barlow Condensed', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #111827; /* Dark text */
+            user-select: none; /* Prevent text selection */
+        }
+
+        .puzzle-image {
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            object-fit: contain;
+            /* Give images a consistent size box */
+            height: 200px; 
+            width: 200px; 
+        }
+
+        .puzzle-image:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .puzzle-image:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+        
+        <!-- Header Instruction -->
+        <h1 id="instruction-text" class="text-5xl sm:text-7xl font-black mb-16 tracking-tighter uppercase text-center text-red-600">
+            DO NOT CLICK THE PALINDROME
+        </h1>
+
+        <!-- Image Container -->
+        <div id="game-area" class="flex flex-wrap items-center justify-center gap-8 sm:gap-16">
+            <!-- Images will be injected here by JavaScript -->
+        </div>
+
+        <!-- Failure Message Container (Hidden by default) -->
+        <div id="message-area" class="hidden mt-10">
+            <h2 class="text-6xl font-black text-black">THANK YOU.</h2>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const IMG_PATH = "./palindrome/";
+        
+        // Define the stages of the game
+        const levels = [
+            {
+                // Level 1
+                images: [
+                    { file: "snowboard.png", isTarget: false }, // Not a palindrome
+                    { file: "tacocat.png", isTarget: true },    // Palindrome
+                    { file: "sandcastle.png", isTarget: false } // Not a palindrome
+                ]
+            },
+            {
+                // Level 2
+                images: [
+                    { file: "racecar.png", isTarget: true },    // Palindrome
+                    { file: "hedgehog.png", isTarget: false },  // Not a palindrome
+                    { file: "duck.png", isTarget: false }       // Not a palindrome
+                ]
+            },
+            {
+                // Level 3
+                images: [
+                    { file: "mom.png", isTarget: true },        // Palindrome
+                    { file: "gorilla.png", isTarget: false },   // Not a palindrome
+                    { file: "cake.png", isTarget: false }       // Not a palindrome
+                ]
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        const gameArea = document.getElementById('game-area');
+        const instructionText = document.getElementById('instruction-text');
+        const messageArea = document.getElementById('message-area');
+
+        // --- Core Functions ---
+
+        /**
+         * Closes the window/tab with a fallback.
+         */
+        function closeWindow() {
+            try {
+                window.open('', '_self').close();
+            } catch (e) {
+                document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center bg-black"><h1 class="text-6xl text-white font-black">THANK YOU.</h1></div>';
+            }
+        }
+
+        /**
+         * Handles the click logic.
+         */
+        function handleImageClick(isTarget) {
+            if (isTarget) {
+                // Correct choice (The Palindrome) - Proceed to next level
+                currentLevelIndex++;
+                
+                if (currentLevelIndex < levels.length) {
+                    renderLevel(currentLevelIndex);
+                } else {
+                    showFinalScreen();
+                }
+            } else {
+                // Wrong choice - They obeyed the instruction (or just guessed wrong)
+                failGame();
+            }
+        }
+
+        /**
+         * Shows the "THANK YOU" failure screen and closes.
+         */
+        function failGame() {
+            gameArea.classList.add('hidden');
+            instructionText.classList.add('hidden');
+            messageArea.classList.remove('hidden');
+            
+            setTimeout(() => {
+                closeWindow();
+            }, 1500); // 1.5 second delay to read the message
+        }
+
+        /**
+         * Displays the final victory message.
+         */
+        function showFinalScreen() {
+            gameArea.innerHTML = ''; // Clear images
+            instructionText.classList.add('hidden'); // Hide the "DO NOT" instruction
+
+            // Create the final text element
+            const finalDiv = document.createElement('div');
+            finalDiv.className = "text-center animate-pulse";
+            finalDiv.innerHTML = `
+                <h1 class="text-4xl sm:text-6xl font-black mb-6 uppercase">
+                    DO NOT TEXT THE WORD "LAME"
+                </h1>
+                <h2 class="text-5xl sm:text-8xl font-black text-red-600">
+                    919-386-9148
+                </h2>
+            `;
+            
+            gameArea.appendChild(finalDiv);
+        }
+
+        /**
+         * Renders the current level's images.
+         */
+        function renderLevel(index) {
+            gameArea.innerHTML = ''; // Clear previous images
+            
+            const levelData = levels[index];
+            
+            // Shuffle the images so they aren't always in the same position if you replay
+            const shuffledImages = [...levelData.images].sort(() => Math.random() - 0.5);
+
+            shuffledImages.forEach(imgData => {
+                const img = document.createElement('img');
+                img.src = `${IMG_PATH}${imgData.file}`;
+                img.alt = "Puzzle Image";
+                img.className = "puzzle-image shadow-xl rounded-xl";
+                
+                // Add error handling placeholder
+                img.onerror = function() { 
+                    this.src = `https://placehold.co/200x200/e5e7eb/000000?text=${imgData.file.split('.')[0]}`; 
+                };
+
+                img.addEventListener('click', () => handleImageClick(imgData.isTarget));
+                
+                gameArea.appendChild(img);
+            });
+        }
+
+        // --- Initialization ---
+        window.addEventListener('load', () => {
+            renderLevel(currentLevelIndex);
+        });
+
+    </script>
+</body>
+</html>

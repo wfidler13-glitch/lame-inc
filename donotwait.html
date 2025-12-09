@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT WAIT</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap');
+        
+        body {
+            font-family: 'Barlow Condensed', sans-serif;
+            background-color: #ffffff; 
+            color: #000000; 
+            overflow: hidden; /* Prevent scrolling */
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+        
+        <!-- Main Container for Game Elements -->
+        <div id="game-container" class="text-center">
+            
+            <!-- Main Instruction Text -->
+            <h1 id="main-text" class="text-8xl sm:text-9xl font-black mb-12 tracking-tighter uppercase">
+                DO NOT WAIT
+            </h1>
+            
+            <!-- The Countdown Timer (Visible initially, hidden later) -->
+            <div id="timer-display" class="text-9xl font-black text-gray-300">
+                5
+            </div>
+        </div>
+
+        <!-- Failure Message Container (Hidden by default) -->
+        <div id="message-area" class="hidden">
+            <h2 class="text-6xl sm:text-8xl font-black text-black">THANK YOU.</h2>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const SUCCESS_URL = "https://forms.gle/giq887BJnStoBQbj8"; 
+        const INITIAL_COUNTDOWN_TIME = 5; // Seconds for the visible "DO NOT WAIT" timer
+        const INVISIBLE_LIMIT_TIME = 15; // Seconds for the invisible "DO NOT TYPE 0" timer
+
+        // --- State ---
+        let currentPhase = 'initial'; // 'initial' or 'action'
+        let initialTimeLeft = INITIAL_COUNTDOWN_TIME;
+        let invisibleTimeLeft = INVISIBLE_LIMIT_TIME;
+        let timerInterval;
+
+        // --- Elements ---
+        const gameContainer = document.getElementById('game-container');
+        const messageArea = document.getElementById('message-area');
+        const timerDisplay = document.getElementById('timer-display');
+        const mainText = document.getElementById('main-text');
+
+        // --- Core Functions ---
+
+        /**
+         * Closes the window/tab with a fallback.
+         * Browsers block window.close() if the script didn't open the tab.
+         * Workaround: Redirect to about:blank to "kill" the page.
+         */
+        function closeWindow() {
+            // Attempt 1: Try standard close (works if opened via popup)
+            try {
+                window.open('', '_self', ''); 
+                window.close();
+            } catch (e) {
+                console.log("Close blocked by browser.");
+            }
+
+            // Fallback: Redirect to a blank page immediately
+            // This is the most reliable way to "X out" of the content
+            setTimeout(() => {
+                window.location.href = "about:blank";
+            }, 100);
+        }
+
+        /**
+         * Triggers the failure state (Time out or wrong key).
+         */
+        function failGame() {
+            clearInterval(timerInterval);
+            currentPhase = 'ended';
+
+            // Hide game, show message
+            gameContainer.classList.add('hidden');
+            messageArea.classList.remove('hidden');
+
+            // Close after 2 seconds
+            setTimeout(() => {
+                closeWindow();
+            }, 2000);
+        }
+
+        /**
+         * Triggers the success state (Pressed 0).
+         */
+        function winGame() {
+            clearInterval(timerInterval);
+            currentPhase = 'ended';
+            // Immediate redirect
+            window.location.href = SUCCESS_URL;
+        }
+
+        /**
+         * Logic for the invisible timer phase.
+         */
+        function startInvisibleTimer() {
+            currentPhase = 'action';
+            
+            // Update UI for the Action Phase
+            timerDisplay.classList.add('hidden'); // Hide the timer
+            mainText.textContent = "DO NOT TYPE 0"; // Change text
+            mainText.classList.add('text-red-600', 'animate-pulse'); // Add styling
+
+            // Start the invisible countdown
+            timerInterval = setInterval(() => {
+                invisibleTimeLeft--;
+                console.log("Invisible Timer:", invisibleTimeLeft); // For debugging
+                
+                if (invisibleTimeLeft <= 0) {
+                    failGame();
+                }
+            }, 1000);
+        }
+
+        /**
+         * Logic for the initial visible countdown.
+         */
+        function startInitialTimer() {
+            timerDisplay.textContent = initialTimeLeft;
+            
+            timerInterval = setInterval(() => {
+                initialTimeLeft--;
+                
+                if (initialTimeLeft > 0) {
+                    timerDisplay.textContent = initialTimeLeft;
+                } else {
+                    // Transition to next phase
+                    clearInterval(timerInterval);
+                    startInvisibleTimer();
+                }
+            }, 1000);
+        }
+
+        /**
+         * Handles keyboard input.
+         */
+        function handleInput(event) {
+            // Only listen for input during the 'action' phase
+            if (currentPhase !== 'action') return;
+
+            // Check if the pressed key is '0'
+            if (event.key === '0') {
+                winGame();
+            } else {
+                // Any other key causes failure
+                failGame();
+            }
+        }
+
+        // --- Initialization ---
+        window.addEventListener('load', () => {
+            startInitialTimer();
+            document.addEventListener('keydown', handleInput);
+        });
+
+    </script>
+</body>
+</html>
