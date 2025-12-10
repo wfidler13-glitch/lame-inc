@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-GVZQ50F49X');
-</script>
+      gtag('config', 'G-GVZQ50F49X');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DO NOT TRANSLATE</title>
@@ -35,13 +36,6 @@
         }
         .animal-icon {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform-origin: 0 100%; /* Pivot point for circular rotation */
-            width: 60px; /* Size of the image/icon container */
-            height: 60px;
-            margin-left: -30px; /* Center horizontally */
-            margin-top: -30px; /* Center vertically (adjusted in JS) */
             cursor: pointer;
             transition: transform 0.15s ease-out;
         }
@@ -71,10 +65,10 @@
 </head>
 <body class="select-none">
 
-    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4 relative">
         
         <!-- Main Instructions (Initial Phase) -->
-        <div id="initial-instruction" class="text-center mb-16">
+        <div id="initial-instruction" class="text-center mb-16 w-full">
             <h1 class="text-4xl sm:text-6xl font-extrabold tracking-widest uppercase mb-4 text-red-500">
                 DO NOT TRANSLATE
             </h1>
@@ -92,17 +86,15 @@
 
     <script>
         // --- Configuration ---
-        // The final destination when a Spotify eye is clicked
         const SPOTIFY_URL = "https://open.spotify.com/playlist/3LaHRpbqb31CV6AmXd9dtT?si=oos6i8I_THS_8uq5WLXrHw&pi=gyzPDjfQT6iH7";
-        const WRONG_IMAGE_FOLDER = "./BUYAOimgs/"; // Base path to your images
+        const WRONG_IMAGE_FOLDER = "./BUYAOimgs/"; 
         
-        // List of animals in the required circular order
         const animals = [
             { name: 'rat', file: 'buyaorat.png', isTarget: false },
             { name: 'ox', file: 'buyaoox.png', isTarget: false },
             { name: 'tiger', file: 'buyaotiger.png', isTarget: false },
             { name: 'rabbit', file: 'buyaorabbit.png', isTarget: false },
-            { name: 'dragon', file: 'buyaodragon.png', isTarget: true }, // The correct one!
+            { name: 'dragon', file: 'buyaodragon.png', isTarget: true }, 
             { name: 'snake', file: 'buyaosnake.png', isTarget: false },
             { name: 'horse', file: 'buyaohorse.png', isTarget: false },
             { name: 'goat', file: 'buyaogoat.png', isTarget: false },
@@ -114,86 +106,70 @@
 
         // --- Core Functions ---
 
-        /**
-         * Closes the window/tab with a fallback.
-         */
         function closeWindow() {
             try {
                 window.open('', '_self').close();
             } catch (e) {
-                // Workaround for blocked close()
                 setTimeout(() => { window.location.href = "about:blank"; }, 100);
             }
         }
 
-        /**
-         * Handles the click on any of the animal icons.
-         * @param {boolean} isTarget - True if the clicked animal is the dragon.
-         */
         function handleIconClick(isTarget) {
-            // Disable all clicks immediately
             document.querySelectorAll('.animal-icon').forEach(icon => {
                 icon.style.pointerEvents = 'none';
             });
 
             if (isTarget) {
-                // Success: Transition to the Spotify Phase
                 renderSpotifyFace();
             } else {
-                // Failure: Show message and close
-                document.getElementById('puzzle-container').innerHTML = '';
-                document.getElementById('initial-instruction').innerHTML = '';
+                const app = document.getElementById('app');
+                app.innerHTML = ''; 
+                
+                const msgContainer = document.createElement('div');
+                msgContainer.className = "absolute inset-0 flex items-center justify-center bg-[#111827] z-50";
                 
                 const msg = document.createElement('div');
-                msg.className = "text-red-500 text-6xl font-black mt-20 animate-pulse";
+                msg.className = "text-red-500 text-6xl font-black animate-pulse text-center";
                 msg.innerText = "THANK YOU.";
-                document.getElementById('app').appendChild(msg);
+                
+                msgContainer.appendChild(msg);
+                document.body.appendChild(msgContainer);
 
                 setTimeout(closeWindow, 1000);
             }
         }
 
-        /**
-         * Renders the "DO NOT OPEN SPOTIFY" face.
-         */
         function renderSpotifyFace() {
             const app = document.getElementById('app');
-            // Clear existing content
             app.innerHTML = '';
+            app.className = "min-h-screen flex flex-col items-center justify-center p-4 w-full";
 
-            // Create Container
             const container = document.createElement('div');
-            container.className = "flex flex-col items-center justify-center animate-fadeIn";
+            container.className = "flex flex-col items-center justify-center animate-fadeIn w-full max-w-2xl";
 
-            // Header Text
             const header = document.createElement('h1');
-            header.className = "text-5xl sm:text-7xl font-extrabold tracking-wider uppercase mb-16 text-[#1DB954]"; // Spotify Green
+            header.className = "text-5xl sm:text-7xl font-extrabold tracking-wider uppercase mb-16 text-[#1DB954] text-center leading-tight"; 
             header.style.fontFamily = "'Barlow Condensed', sans-serif";
             header.innerText = "DO NOT OPEN SPOTIFY";
             container.appendChild(header);
 
-            // Face Container
             const faceDiv = document.createElement('div');
             faceDiv.className = "flex flex-col items-center";
 
-            // Eyes Container (Two Spotify Logos)
             const eyesDiv = document.createElement('div');
-            eyesDiv.className = "flex gap-16 mb-8";
+            eyesDiv.className = "flex gap-8 sm:gap-16 mb-8 justify-center";
 
-            // Spotify SVG String
             const spotifySvg = `
-                <svg viewBox="0 0 24 24" width="120" height="120" class="spotify-logo">
+                <svg viewBox="0 0 24 24" width="100" height="100" class="spotify-logo w-24 h-24 sm:w-32 sm:h-32">
                     <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.26.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-.96 15.18 1.381.54.3.72 1.02.42 1.56-.3.54-1.02.72-1.56.42z"/>
                 </svg>
             `;
 
-            // Left Eye
             const leftEye = document.createElement('div');
             leftEye.innerHTML = spotifySvg;
             leftEye.addEventListener('click', () => window.location.href = SPOTIFY_URL);
             eyesDiv.appendChild(leftEye);
 
-            // Right Eye
             const rightEye = document.createElement('div');
             rightEye.innerHTML = spotifySvg;
             rightEye.addEventListener('click', () => window.location.href = SPOTIFY_URL);
@@ -201,21 +177,16 @@
 
             faceDiv.appendChild(eyesDiv);
 
-            // Smile (Simple CSS Arc)
             const smile = document.createElement('div');
-            smile.className = "w-48 h-24 border-b-[12px] border-[#1DB954] rounded-full";
+            smile.className = "w-32 h-16 sm:w-48 sm:h-24 border-b-[8px] sm:border-b-[12px] border-[#1DB954] rounded-full";
             faceDiv.appendChild(smile);
 
             container.appendChild(faceDiv);
             app.appendChild(container);
         }
 
-        /**
-         * Renders the zodiac icons in a circle.
-         */
         function renderPuzzle() {
             const container = document.getElementById('puzzle-container');
-            // Check if container exists (it might be removed if game ended)
             if (!container) return;
 
             const numAnimals = animals.length;
@@ -248,7 +219,6 @@
             });
         }
 
-        // Initialize
         window.addEventListener('load', renderPuzzle);
         window.addEventListener('resize', renderPuzzle);
         

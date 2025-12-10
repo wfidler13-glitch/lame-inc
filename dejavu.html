@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-GVZQ50F49X');
-</script>
+      gtag('config', 'G-GVZQ50F49X');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DO NOT TRANSLATE</title>
@@ -35,13 +36,7 @@
         }
         .animal-icon {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform-origin: 0 100%; /* Pivot point for circular rotation */
-            width: 60px; /* Size of the image/icon container */
-            height: 60px;
-            margin-left: -30px; /* Center horizontally */
-            margin-top: -30px; /* Center vertically (adjusted in JS) */
+            /* Removed fixed positions and negative margins to allow JS to center correctly */
             cursor: pointer;
             transition: transform 0.15s ease-out;
         }
