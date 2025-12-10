@@ -23,12 +23,22 @@
             transition: transform 0.1s ease-out, filter 0.1s ease-out;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            /* CRITICAL: Disables double-tap zoom delay on mobile */
+            touch-action: manipulation; 
         }
 
-        /* State when the button is actively pressed down */
+        /* Standard active state for mouse users */
         .pressable-image:active {
-            transform: scale(0.98) translateY(2px); /* Subtle squash and indent */
-            filter: brightness(0.9); /* Slightly darken the image */
+            transform: scale(0.98) translateY(2px); 
+            filter: brightness(0.9); 
+        }
+
+        /* Manual active state for touch users 
+           (applied via JS to ensure it works reliably on phones)
+        */
+        .pressable-image.is-pressed {
+            transform: scale(0.98) translateY(2px) !important; 
+            filter: brightness(0.9) !important; 
         }
     </style>
 </head>
@@ -47,11 +57,10 @@
              class="w-5/6 max-w-md h-auto mb-10 select-none" />
 
         <!-- 3. BIG RED BUTTON (The interactive element) -->
-        <!-- We use an anchor tag with click handler to prevent default drag/context menu behavior -->
-        <a id="big-red-button" class="pressable-image">
+        <a id="big-red-button" class="pressable-image block">
             <img src="./DONOT/bigredbutton.png" 
                  alt="A big red button" 
-                 class="w-64 h-64 select-none"
+                 class="w-64 h-64 select-none pointer-events-none" 
                  onerror="this.src='https://placehold.co/256x256/ef4444/FFFFFF?text=BUTTON'; console.error('Image DONOT/bigredbutton.png not found.');" />
         </a>
 
@@ -59,39 +68,81 @@
 
     <script>
         // --- Configuration ---
-        const NEXT_DESTINATION_URL = "https://youtu.be/MTWEK-qM9EA"; // Updated to the correct YouTube link
+        const NEXT_DESTINATION_URL = "https://youtu.be/MTWEK-qM9EA";
         const BUTTON = document.getElementById('big-red-button');
         let clickCount = 0;
-        const MAX_CLICKS = 3; // Number of presses before redirect
+        const TARGET_CLICKS = 1; // CHANGED: Trigger on the first click
 
-        // --- Event Listener ---
-        BUTTON.addEventListener('click', handleButtonClick);
+        // --- Event Listeners ---
+        
+        // 1. Mouse Events (Desktop)
+        BUTTON.addEventListener('mousedown', (e) => {
+            // Only left click
+            if (e.button !== 0) return;
+            e.preventDefault(); 
+            handlePressStart();
+        });
 
-        /**
-         * Handles the click event on the button, counting clicks and redirecting.
-         */
-        function handleButtonClick(event) {
-            // Prevent default behavior (like dragging the image)
-            event.preventDefault(); 
-            
-            // Only count the click if we haven't redirected yet
-            if (clickCount <= MAX_CLICKS) {
-                clickCount++;
-                console.log(`Button pressed. Count: ${clickCount}`);
+        BUTTON.addEventListener('mouseup', (e) => {
+            handlePressEnd();
+        });
+
+        BUTTON.addEventListener('mouseleave', (e) => {
+            // If mouse leaves the button while pressed, cancel the press visual
+            if (BUTTON.classList.contains('is-pressed')) {
+                BUTTON.classList.remove('is-pressed');
             }
+        });
 
-            if (clickCount > MAX_CLICKS) {
-                // Remove the click listener to prevent multiple redirects
-                BUTTON.removeEventListener('click', handleButtonClick);
+        // 2. Touch Events (Mobile - Critical for responsiveness)
+        BUTTON.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevents ghost clicks and scrolling/zooming while tapping
+            handlePressStart();
+        }, { passive: false });
+
+        BUTTON.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handlePressEnd();
+        }, { passive: false });
+
+
+        // --- Logic ---
+
+        function handlePressStart() {
+            // Apply visual "squash" effect manually
+            BUTTON.classList.add('is-pressed');
+        }
+
+        function handlePressEnd() {
+            // Only proceed if the button was actually being pressed
+            if (!BUTTON.classList.contains('is-pressed')) return;
+
+            // Remove visual effect
+            BUTTON.classList.remove('is-pressed');
+
+            // Game Logic
+            processClick();
+        }
+
+        function processClick() {
+            clickCount++;
+            console.log(`Button pressed. Count: ${clickCount}`);
+
+            // Trigger on the 1st click
+            if (clickCount >= TARGET_CLICKS) {
+                // Prevent further interaction
+                const newButton = BUTTON.cloneNode(true);
+                BUTTON.parentNode.replaceChild(newButton, BUTTON);
                 
-                // Immediately apply the final pressed look
-                BUTTON.style.transform = "scale(0.98) translateY(2px)";
-                BUTTON.style.filter = "brightness(0.9)";
+                // Freeze the button in "pressed" state for visual feedback
+                newButton.classList.add('is-pressed');
+                newButton.style.transform = "scale(0.98) translateY(2px)";
+                newButton.style.filter = "brightness(0.9)";
 
-                // Navigate away after a brief visual confirmation
+                // Navigate away
                 setTimeout(() => {
                     window.location.href = NEXT_DESTINATION_URL;
-                }, 500);
+                }, 200); // Shorter delay for instant gratification
             }
         }
     </script>
