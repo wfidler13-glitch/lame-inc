@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-GVZQ50F49X');
-</script>
+      gtag('config', 'G-GVZQ50F49X');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DO NOT WAIT</title>
@@ -19,35 +20,37 @@
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap');
         
         body {
+            /* Unified Theme: White BG, Black Text */
             font-family: 'Barlow Condensed', sans-serif;
             background-color: #ffffff; 
             color: #000000; 
-            overflow: hidden; /* Prevent scrolling */
+            overflow: hidden; 
             user-select: none;
+            touch-action: manipulation; 
         }
     </style>
 </head>
 <body>
 
-    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4 cursor-pointer">
         
         <!-- Main Container for Game Elements -->
         <div id="game-container" class="text-center">
             
             <!-- Main Instruction Text -->
-            <h1 id="main-text" class="text-8xl sm:text-9xl font-black mb-12 tracking-tighter uppercase">
+            <h1 id="main-text" class="text-8xl sm:text-9xl font-black mb-12 tracking-tighter uppercase select-none text-black leading-none">
                 DO NOT WAIT
             </h1>
             
-            <!-- The Countdown Timer (Visible initially, hidden later) -->
-            <div id="timer-display" class="text-9xl font-black text-gray-300">
-                5
+            <!-- The Countdown Timer - Black -->
+            <div id="timer-display" class="text-9xl font-black text-black select-none">
+                404
             </div>
         </div>
 
-        <!-- Failure Message Container (Hidden by default) -->
+        <!-- Failure Message Container -->
         <div id="message-area" class="hidden">
-            <h2 class="text-6xl sm:text-8xl font-black text-black">THANK YOU.</h2>
+            <h2 class="text-7xl sm:text-9xl font-black text-black">THANK YOU.</h2>
         </div>
 
     </div>
@@ -55,16 +58,22 @@
     <script>
         // --- Configuration ---
         const SUCCESS_URL = "https://forms.gle/giq887BJnStoBQbj8"; 
-        const INITIAL_COUNTDOWN_TIME = 404; // Seconds for the visible "DO NOT WAIT" timer (Updated to 404)
-        const INVISIBLE_LIMIT_TIME = 15; // Seconds for the invisible "DO NOT TYPE 0" timer
+        const INITIAL_COUNTDOWN_TIME = 404; // Phase 1 Duration
+        const INVISIBLE_LIMIT_TIME = 11;    // Phase 2 Total Duration (Updated to 11s)
+        const TARGET_TAPS = 11;             // Exact number of taps required
+        const SILENCE_THRESHOLD = 3000;     // Time to wait after last tap (Updated to 3s)
 
         // --- State ---
-        let currentPhase = 'initial'; // 'initial' or 'action'
+        let currentPhase = 'initial'; 
         let initialTimeLeft = INITIAL_COUNTDOWN_TIME;
         let invisibleTimeLeft = INVISIBLE_LIMIT_TIME;
-        let timerInterval;
+        
+        let timerInterval;       
+        let silenceTimeout;      
+        let tapCount = 0;        
 
         // --- Elements ---
+        const app = document.getElementById('app');
         const gameContainer = document.getElementById('game-container');
         const messageArea = document.getElementById('message-area');
         const timerDisplay = document.getElementById('timer-display');
@@ -72,69 +81,60 @@
 
         // --- Core Functions ---
 
-        /**
-         * Closes the window/tab with a fallback.
-         * Browsers block window.close() if the script didn't open the tab.
-         * Workaround: Redirect to about:blank to "kill" the page.
-         */
         function closeWindow() {
-            // Attempt 1: Try standard close (works if opened via popup)
             try {
                 window.open('', '_self', ''); 
                 window.close();
             } catch (e) {
-                console.log("Close blocked by browser.");
+                console.log("Close blocked.");
             }
-
-            // Fallback: Redirect to a blank page immediately
-            // This is the most reliable way to "X out" of the content
             setTimeout(() => {
                 window.location.href = "about:blank";
             }, 100);
         }
 
-        /**
-         * Triggers the failure state (Time out or wrong key).
-         */
         function failGame() {
-            clearInterval(timerInterval);
+            if (currentPhase === 'ended') return;
             currentPhase = 'ended';
+            
+            clearInterval(timerInterval);
+            clearTimeout(silenceTimeout);
 
-            // Hide game, show message
             gameContainer.classList.add('hidden');
             messageArea.classList.remove('hidden');
 
-            // Close after 2 seconds
             setTimeout(() => {
                 closeWindow();
             }, 2000);
         }
 
-        /**
-         * Triggers the success state (Pressed 0).
-         */
         function winGame() {
-            clearInterval(timerInterval);
+            if (currentPhase === 'ended') return;
             currentPhase = 'ended';
-            // Immediate redirect
+            
+            clearInterval(timerInterval);
+            clearTimeout(silenceTimeout);
+            
             window.location.href = SUCCESS_URL;
         }
 
-        /**
-         * Logic for the invisible timer phase.
-         */
+        // --- Phase 2 Logic (Tapping) ---
+
         function startInvisibleTimer() {
             currentPhase = 'action';
             
-            // Update UI for the Action Phase
-            timerDisplay.classList.add('hidden'); // Hide the timer
-            mainText.textContent = "DO NOT TYPE 0"; // Change text
-            mainText.classList.add('text-red-600', 'animate-pulse'); // Add styling
+            // Update UI
+            timerDisplay.classList.add('hidden');
+            mainText.innerHTML = "DO NOT TAP / CLICK<br>EXACTLY 11 TIMES";
+            
+            // Ensure visual consistency (Black text, pulsing)
+            mainText.classList.remove('text-black');
+            mainText.classList.add('text-black', 'animate-pulse');
 
-            // Start the invisible countdown
+            // Start global timeout for Phase 2
             timerInterval = setInterval(() => {
                 invisibleTimeLeft--;
-                console.log("Invisible Timer:", invisibleTimeLeft); // For debugging
+                console.log("Time Left:", invisibleTimeLeft);
                 
                 if (invisibleTimeLeft <= 0) {
                     failGame();
@@ -142,9 +142,27 @@
             }, 1000);
         }
 
-        /**
-         * Logic for the initial visible countdown.
-         */
+        function handleTap() {
+            if (currentPhase !== 'action') return;
+
+            tapCount++;
+            console.log("Tap count:", tapCount);
+            
+            // Reset waiting timer on every tap
+            if (silenceTimeout) clearTimeout(silenceTimeout);
+
+            // Wait 3 seconds to confirm they have stopped tapping
+            silenceTimeout = setTimeout(() => {
+                if (tapCount === TARGET_TAPS) {
+                    winGame();
+                } else {
+                    failGame();
+                }
+            }, SILENCE_THRESHOLD);
+        }
+
+        // --- Phase 1 Logic (Waiting) ---
+
         function startInitialTimer() {
             timerDisplay.textContent = initialTimeLeft;
             
@@ -154,33 +172,24 @@
                 if (initialTimeLeft > 0) {
                     timerDisplay.textContent = initialTimeLeft;
                 } else {
-                    // Transition to next phase
                     clearInterval(timerInterval);
                     startInvisibleTimer();
                 }
             }, 1000);
         }
 
-        /**
-         * Handles keyboard input.
-         */
-        function handleInput(event) {
-            // Only listen for input during the 'action' phase
-            if (currentPhase !== 'action') return;
-
-            // Check if the pressed key is '0'
-            if (event.key === '0') {
-                winGame();
-            } else {
-                // Any other key causes failure
-                failGame();
-            }
-        }
-
-        // --- Initialization ---
         window.addEventListener('load', () => {
             startInitialTimer();
-            document.addEventListener('keydown', handleInput);
+
+            app.addEventListener('mousedown', (e) => {
+                e.preventDefault(); 
+                handleTap();
+            });
+            
+            app.addEventListener('touchstart', (e) => {
+                e.preventDefault(); 
+                handleTap();
+            }, { passive: false });
         });
 
     </script>

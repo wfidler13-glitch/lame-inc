@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GVZQ50F49X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-GVZQ50F49X');
-</script>
+      gtag('config', 'G-GVZQ50F49X');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DO NOT CLICK #194052</title>
@@ -19,10 +20,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap');
         
         body {
+            /* Unified Theme: White BG, Black Text */
             font-family: 'Barlow Condensed', sans-serif;
             background-color: #ffffff; 
-            /* The requested font color */
-            color: #a47864; 
+            color: #000000; 
             overflow: hidden;
             user-select: none;
         }
@@ -31,12 +32,12 @@
             cursor: pointer;
             transition: transform 0.2s ease, filter 0.2s ease;
             width: 100%;
-            aspect-ratio: 1 / 1; /* Force square aspect ratio */
+            aspect-ratio: 1 / 1; 
         }
 
         .grid-item:hover {
             transform: scale(1.05);
-            filter: brightness(1.1);
+            filter: brightness(0.9); /* Darken on white bg */
             z-index: 10;
         }
 
@@ -55,8 +56,8 @@
 
     <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
         
-        <!-- Header Instruction -->
-        <h1 class="text-6xl sm:text-8xl font-black mb-12 tracking-tighter uppercase text-center">
+        <!-- Header Instruction - Updated to Black -->
+        <h1 class="text-6xl sm:text-8xl font-black mb-12 tracking-tighter uppercase text-center text-black">
             DO NOT CLICK #194052
         </h1>
 
@@ -65,9 +66,9 @@
             <!-- Grid items injected by JS -->
         </div>
 
-        <!-- Failure Message (Hidden by default) -->
+        <!-- Failure Message -->
         <div id="message-area" class="hidden absolute inset-0 bg-white flex items-center justify-center z-50">
-            <h2 class="text-6xl sm:text-9xl font-black">THANK YOU.</h2>
+            <h2 class="text-7xl sm:text-9xl font-black text-black">THANK YOU.</h2>
         </div>
 
     </div>
@@ -78,15 +79,11 @@
         const SUCCESS_URL = "https://lameincorporated.com/donotwait";
         const IMG_FOLDER = "./194052/";
         
-        // Range of years to generate
         const startYear = 2010;
         const endYear = 2024;
 
         // --- Core Functions ---
 
-        /**
-         * Closes the window/tab with a fallback.
-         */
         function closeWindow() {
             try {
                 window.open('', '_self').close();
@@ -97,24 +94,15 @@
             }, 100);
         }
 
-        /**
-         * Logic when an image is clicked
-         */
         function handleImageClick(year) {
             if (year === TARGET_YEAR) {
-                // Success: #194052 is the hex color for a brownish tone, 
-                // but ironically 2020 is likely the target associated with the number/theme.
                 window.location.href = SUCCESS_URL;
             } else {
-                // Failure: Show message and close
                 document.getElementById('message-area').classList.remove('hidden');
                 setTimeout(closeWindow, 1000);
             }
         }
 
-        /**
-         * Generates the grid of images
-         */
         function renderGrid() {
             const gridContainer = document.querySelector('.grid');
             
@@ -125,9 +113,8 @@
                 const img = document.createElement('img');
                 img.src = `${IMG_FOLDER}${year}.png`;
                 img.alt = `Year ${year}`;
-                // Fallback if image is missing
                 img.onerror = function() { 
-                    this.src = `https://placehold.co/200x200/a47864/ffffff?text=${year}`; 
+                    this.src = `https://placehold.co/200x200/000000/ffffff?text=${year}`; 
                 };
 
                 container.appendChild(img);
@@ -137,7 +124,6 @@
             }
         }
 
-        // Initialize
         window.addEventListener('load', renderGrid);
 
     </script>
