@@ -28,11 +28,22 @@
             user-select: none;
             touch-action: manipulation; 
         }
+
+        /* Styles for the interactive text segments */
+        .interactive-char {
+            cursor: pointer;
+            display: inline-block; /* Allows transform if needed */
+            transition: color 0.1s;
+        }
+        
+        /* On hover, maybe no change to keep it hard? 
+           Or slight change? Let's keep it static to not give it away. 
+        */
     </style>
 </head>
 <body>
 
-    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4 cursor-pointer">
+    <div id="app" class="min-h-screen flex flex-col items-center justify-center p-4">
         
         <!-- Main Container for Game Elements -->
         <div id="game-container" class="text-center">
@@ -42,7 +53,7 @@
                 DO NOT WAIT
             </h1>
             
-            <!-- The Countdown Timer - Black -->
+            <!-- The Countdown Timer -->
             <div id="timer-display" class="text-9xl font-black text-black select-none">
                 404
             </div>
@@ -59,21 +70,15 @@
         // --- Configuration ---
         const SUCCESS_URL = "https://forms.gle/giq887BJnStoBQbj8"; 
         const INITIAL_COUNTDOWN_TIME = 404; // Phase 1 Duration
-        const INVISIBLE_LIMIT_TIME = 11;    // Phase 2 Total Duration (Updated to 11s)
-        const TARGET_TAPS = 11;             // Exact number of taps required
-        const SILENCE_THRESHOLD = 3000;     // Time to wait after last tap (Updated to 3s)
-
+        const INVISIBLE_LIMIT_TIME = 11;    // Phase 2 Total Duration
+        
         // --- State ---
         let currentPhase = 'initial'; 
         let initialTimeLeft = INITIAL_COUNTDOWN_TIME;
         let invisibleTimeLeft = INVISIBLE_LIMIT_TIME;
-        
         let timerInterval;       
-        let silenceTimeout;      
-        let tapCount = 0;        
 
         // --- Elements ---
-        const app = document.getElementById('app');
         const gameContainer = document.getElementById('game-container');
         const messageArea = document.getElementById('message-area');
         const timerDisplay = document.getElementById('timer-display');
@@ -98,7 +103,6 @@
             currentPhase = 'ended';
             
             clearInterval(timerInterval);
-            clearTimeout(silenceTimeout);
 
             gameContainer.classList.add('hidden');
             messageArea.classList.remove('hidden');
@@ -113,23 +117,59 @@
             currentPhase = 'ended';
             
             clearInterval(timerInterval);
-            clearTimeout(silenceTimeout);
-            
             window.location.href = SUCCESS_URL;
         }
 
-        // --- Phase 2 Logic (Tapping) ---
+        // --- Phase 2 Logic (Interactive Text) ---
 
         function startInvisibleTimer() {
             currentPhase = 'action';
             
-            // Update UI
+            // Hide the explicit numeric timer
             timerDisplay.classList.add('hidden');
-            mainText.innerHTML = "DO NOT TAP / CLICK<br>EXACTLY 11 TIMES";
             
-            // Ensure visual consistency (Black text, pulsing)
-            mainText.classList.remove('text-black');
-            mainText.classList.add('text-black', 'animate-pulse');
+            // Inject the Puzzle Text with span wrappers
+            // DO NOT T0UCH THE 0
+            // Decoys: O in DO, O in NOT, 0 at end
+            // Target: 0 in T0UCH
+            mainText.innerHTML = `
+                D<span class="interactive-char decoy">O</span> 
+                N<span class="interactive-char decoy">O</span>T 
+                T<span class="interactive-char target">0</span>UCH 
+                THE 
+                <span class="interactive-char decoy">0</span>
+            `;
+            
+            // Add pulsing effect
+            mainText.classList.add('animate-pulse');
+
+            // Attach listeners to the new elements
+            const decoys = document.querySelectorAll('.decoy');
+            decoys.forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent bubbling issues
+                    failGame();
+                });
+                // Ensure touch support
+                el.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    failGame();
+                }, { passive: false });
+            });
+
+            const target = document.querySelector('.target');
+            if (target) {
+                target.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    winGame();
+                });
+                target.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    winGame();
+                }, { passive: false });
+            }
 
             // Start global timeout for Phase 2
             timerInterval = setInterval(() => {
@@ -142,25 +182,6 @@
             }, 1000);
         }
 
-        function handleTap() {
-            if (currentPhase !== 'action') return;
-
-            tapCount++;
-            console.log("Tap count:", tapCount);
-            
-            // Reset waiting timer on every tap
-            if (silenceTimeout) clearTimeout(silenceTimeout);
-
-            // Wait 3 seconds to confirm they have stopped tapping
-            silenceTimeout = setTimeout(() => {
-                if (tapCount === TARGET_TAPS) {
-                    winGame();
-                } else {
-                    failGame();
-                }
-            }, SILENCE_THRESHOLD);
-        }
-
         // --- Phase 1 Logic (Waiting) ---
 
         function startInitialTimer() {
@@ -169,27 +190,20 @@
             timerInterval = setInterval(() => {
                 initialTimeLeft--;
                 
+                // Update display only if positive
                 if (initialTimeLeft > 0) {
                     timerDisplay.textContent = initialTimeLeft;
                 } else {
+                    // Time is up -> Switch to Phase 2
                     clearInterval(timerInterval);
                     startInvisibleTimer();
                 }
             }, 1000);
         }
 
+        // --- Initialization ---
         window.addEventListener('load', () => {
             startInitialTimer();
-
-            app.addEventListener('mousedown', (e) => {
-                e.preventDefault(); 
-                handleTap();
-            });
-            
-            app.addEventListener('touchstart', (e) => {
-                e.preventDefault(); 
-                handleTap();
-            }, { passive: false });
         });
 
     </script>
